@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduStats — Dashboard Educacional Brasileiro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Syne", "sans-serif"],
+            mono: ["Space Mono", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-display min-h-screen">
+
+  <!-- NOISE OVERLAY -->
+  <div class="noise-overlay"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-40 flex flex-col">
+    <!-- Logo -->
+    <div class="p-5 border-b border-slate-800">
+      <div class="flex items-center gap-0">
+        <!-- Pill ícone laranja -->
+        <div class="flex items-center justify-center bg-orange-500 rounded-l-lg flex-shrink-0" style="width:40px;height:40px;">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 17 L8 11 L12 14 L17 5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="17" cy="5" r="2.5" fill="#fff"/>
+          </svg>
+        </div>
+        <!-- Pill texto slate -->
+        <div class="flex flex-col justify-center rounded-r-lg px-3" style="background:#1e293b;height:40px;gap:2px;">
+          <span class="font-bold text-white leading-none tracking-wide" style="font-size:15px;letter-spacing:0.3px;">EduStats</span>
+          <span class="font-mono text-slate-500 leading-none uppercase tracking-widest" style="font-size:8px;letter-spacing:2px;">Brasil · 2025</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="p-4 flex-1">
+      <p class="text-slate-600 text-xs uppercase font-bold tracking-widest mb-3 px-2">Menu</p>
+      <a href="index.html" class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-semibold">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Dashboard
+      </a>
+      <a href="crud.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-semibold">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        Gerenciar Escolas
+      </a>
+
+      <p class="text-slate-600 text-xs uppercase font-bold tracking-widest mb-3 mt-6 px-2">Filtros</p>
+
+      <!-- Filtro Região -->
+      <div class="px-2 mb-3">
+        <label class="text-slate-400 text-xs font-mono block mb-1">REGIÃO</label>
+        <select id="filtroRegiao" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500">
+          <option value="Todos">Todos</option>
+          <option value="Norte">Norte</option>
+          <option value="Nordeste">Nordeste</option>
+          <option value="Centro-Oeste">Centro-Oeste</option>
+          <option value="Sudeste">Sudeste</option>
+          <option value="Sul">Sul</option>
+        </select>
+      </div>
+
+      <!-- Filtro Estado (IBGE) -->
+      <div class="px-2">
+        <label class="text-slate-400 text-xs font-mono block mb-1">
+          ESTADO
+          <span id="ibge-badge" class="ml-1 text-slate-500 font-mono text-xs">carregando IBGE…</span>
+        </label>
+        <select id="filtroEstado" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500">
+          <option value="">Todos os estados</option>
+        </select>
+      </div>
+    </nav>
+
+    <!-- Footer sidebar -->
+    <div class="p-4 border-t border-slate-800">
+      <div class="text-slate-600 text-xs font-mono leading-relaxed">
+        Dados: INEP/ENEM 2025<br/>
+        API: IBGE · Back4App
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-64 min-h-screen">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-30 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-8 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-extrabold tracking-tight">Dashboard Educacional</h1>
+        <p class="text-slate-500 text-sm font-mono mt-0.5">ENEM 2025 · Análise Nacional</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+        <span class="text-slate-400 text-xs font-mono">dados ao vivo</span>
+      </div>
+    </header>
+
+    <div class="p-8">
+
+      <!-- KPI CARDS -->
+      <div class="grid grid-cols-4 gap-4 mb-8">
+        <div class="kpi-card bg-slate-900 rounded-2xl p-5 border border-slate-800 relative overflow-hidden">
+          <div class="kpi-accent bg-orange-500"></div>
+          <p class="text-slate-500 text-xs font-mono uppercase tracking-wider mb-2">Inscrições 2025</p>
+          <p id="kpi-inscricoes" class="text-3xl font-extrabold text-white tracking-tight">—</p>
+          <p class="text-emerald-400 text-xs font-mono mt-1">+11.2% vs 2024</p>
+        </div>
+        <div class="kpi-card bg-slate-900 rounded-2xl p-5 border border-slate-800 relative overflow-hidden">
+          <div class="kpi-accent bg-sky-500"></div>
+          <p class="text-slate-500 text-xs font-mono uppercase tracking-wider mb-2">Média Geral</p>
+          <p id="kpi-media" class="text-3xl font-extrabold text-white tracking-tight">—</p>
+          <p class="text-slate-400 text-xs font-mono mt-1">pontos ENEM</p>
+        </div>
+        <div class="kpi-card bg-slate-900 rounded-2xl p-5 border border-slate-800 relative overflow-hidden">
+          <div class="kpi-accent bg-violet-500"></div>
+          <p class="text-slate-500 text-xs font-mono uppercase tracking-wider mb-2">Estados</p>
+          <p id="kpi-estados" class="text-3xl font-extrabold text-white tracking-tight">—</p>
+          <p class="text-slate-400 text-xs font-mono mt-1">com dados ENEM</p>
+        </div>
+        <div class="kpi-card bg-slate-900 rounded-2xl p-5 border border-slate-800 relative overflow-hidden">
+          <div class="kpi-accent bg-lime-500"></div>
+          <p class="text-slate-500 text-xs font-mono uppercase tracking-wider mb-2">Edição</p>
+          <p id="kpi-ano" class="text-3xl font-extrabold text-white tracking-tight">—</p>
+          <p class="text-slate-400 text-xs font-mono mt-1">dados mais recentes</p>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 1 -->
+      <div class="grid grid-cols-3 gap-4 mb-4">
+
+        <!-- Bar chart estados — maior -->
+        <div class="col-span-2 bg-slate-900 rounded-2xl border border-slate-800 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="font-bold text-white">Média por Estado</h2>
+              <p class="text-slate-500 text-xs font-mono">ENEM 2025 · filtrado por região</p>
+            </div>
+            <!-- Legenda de regiões -->
+            <div class="flex gap-3 flex-wrap justify-end">
+              <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-sky-400 inline-block"></span>Norte</span>
+              <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-orange-400 inline-block"></span>Nordeste</span>
+              <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-lime-400 inline-block"></span>C-Oeste</span>
+              <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-violet-400 inline-block"></span>Sudeste</span>
+              <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-400 inline-block"></span>Sul</span>
+            </div>
+          </div>
+          <div class="h-64">
+            <canvas id="grafico-regioes"></canvas>
+          </div>
+        </div>
+
+        <!-- Doughnut regiões -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+          <div class="mb-4">
+            <h2 class="font-bold text-white">Inscrições por Região</h2>
+            <p class="text-slate-500 text-xs font-mono">distribuição nacional</p>
+          </div>
+          <div class="h-64">
+            <canvas id="grafico-doughnut"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 2 -->
+      <div class="grid grid-cols-2 gap-4">
+
+        <!-- Line chart histórico -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+          <div class="mb-4">
+            <h2 class="font-bold text-white">Evolução de Inscrições</h2>
+            <p class="text-slate-500 text-xs font-mono">ENEM 2020 → 2025</p>
+          </div>
+          <div class="h-56">
+            <canvas id="grafico-historico"></canvas>
+          </div>
+        </div>
+
+        <!-- Horizontal bar disciplinas -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+          <div class="mb-4">
+            <h2 class="font-bold text-white">Ranking por Disciplina</h2>
+            <p class="text-slate-500 text-xs font-mono">médias ENEM 2025</p>
+          </div>
+          <div class="h-56">
+            <canvas id="grafico-disciplinas"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /p-8 -->
+  </main><!-- /main -->
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
