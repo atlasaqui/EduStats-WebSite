@@ -295,9 +295,9 @@ Desenvolvido por alunos do curso de **Ciência da Computação / Sistemas de Inf
 
 | Nome | GitHub | Função |
 |---|---|---|
-| Integrante 1 | [@usuario1](https://github.com) | Frontend · Dashboard |
-| Integrante 2 | [@usuario2](https://github.com) | CRUD · Back4App |
-| Integrante 3 | [@usuario3](https://github.com) | API IBGE · Dados |
+| Integrante 1 | [[@Victor Monteiro (https://github.com/atlasaqui) | Frontend · Dashboard |
+| Integrante 2 | [@Ester](https://github.com) | CRUD · Back4App |
+| Integrante 3 | [@Suelen(https://github.com) | API IBGE · Dados |
 
 ---
 

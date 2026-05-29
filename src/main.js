@@ -1,60 +1,89 @@
-import './style.css'
-import javascriptLogo from './assets/javascript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.js'
+// main.js - Ponto de entrada: inicializa dashboard
+import { criarGraficoRegioes, criarGraficoHistorico, criarGraficoDisciplinas, criarGraficoDoughnut } from "./charts.js";
+import { buscarEstados, buscarCidades } from "./external-api.js";
+import { mediaPorEstado, evolucaoPorInscricao } from "../data/dataset.js";
 
-document.querySelector('#app').innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${javascriptLogo}" class="framework" alt="JavaScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+document.addEventListener("DOMContentLoaded", async () => {
+    // KPIs
+    const totalInscricoes = evolucaoPorInscricao.at(-1).inscricoes;
+    const mediaGeral = mediaPorEstado.reduce((s, d) => s + d.media, 0) / mediaPorEstado.length;
 
-<div class="ticks"></div>
+    const kpiEl = document.querySelector("#kpi-inscricoes");
+    const kpiMedia = document.querySelector("#kpi-media");
+    const kpiEstados = document.querySelector("#kpi-estados");
+    const kpiAno = document.querySelector("#kpi-ano");
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-          <img class="button-icon" src="${javascriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+    if (kpiEl)      kpiEl.textContent      = (totalInscricoes / 1_000_000).toFixed(2) + "M";
+    if (kpiMedia)   kpiMedia.textContent   = mediaGeral.toFixed(1);
+    if (kpiEstados) kpiEstados.textContent = mediaPorEstado.length;
+    if (kpiAno)     kpiAno.textContent     = "2025";
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+    // Gráficos
+    criarGraficoRegioes();
+    criarGraficoHistorico();
+    criarGraficoDisciplinas();
+    criarGraficoDoughnut();
 
-setupCounter(document.querySelector('#counter'))
+    // Filtro de região
+    const filtroRegiao = document.querySelector("#filtroRegiao");
+    if (filtroRegiao) {
+        filtroRegiao.addEventListener("change", (e) => {
+            criarGraficoRegioes(e.target.value);
+        });
+    }
+
+    // Filtros de estado e cidade via IBGE
+    const filtroEstado = document.querySelector("#filtroEstado");
+    const filtroCidade = document.querySelector("#filtroCidade");
+
+    if (filtroEstado) {
+        const ibgeBadge = document.querySelector("#ibge-badge");
+        try {
+            const estados = await buscarEstados();
+            estados.forEach(e => {
+                const option = document.createElement("option");
+                option.value = e.sigla;
+                option.textContent = `${e.nome} (${e.sigla})`;
+                filtroEstado.appendChild(option);
+            });
+            if (ibgeBadge) {
+                ibgeBadge.textContent = "✓ IBGE conectado";
+                ibgeBadge.classList.add("text-emerald-400");
+                ibgeBadge.classList.remove("text-slate-500");
+            }
+        } catch {
+            if (ibgeBadge) ibgeBadge.textContent = "⚠ API indisponível";
+        }
+
+        filtroEstado.addEventListener("change", async (e) => {
+            const sigla = e.target.value;
+
+            // atualiza gráfico
+            if (!sigla) {
+                criarGraficoRegioes(filtroRegiao?.value || "Todos");
+            } else {
+                const estadoDado = mediaPorEstado.find(d => d.estado === sigla);
+                if (estadoDado) criarGraficoRegioes(estadoDado.regiao);
+            }
+
+            // popula cidades
+            if (filtroCidade) {
+                filtroCidade.innerHTML = '<option value="">Todas as cidades</option>';
+                filtroCidade.disabled = !sigla;
+                if (sigla) {
+                    try {
+                        const cidades = await buscarCidades(sigla);
+                        cidades.forEach(c => {
+                            const option = document.createElement("option");
+                            option.value = c.id;
+                            option.textContent = c.nome;
+                            filtroCidade.appendChild(option);
+                        });
+                    } catch {
+                        // silencioso: campo fica sem opções
+                    }
+                }
+            }
+        });
+    }
+});

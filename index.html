@@ -33,14 +33,12 @@
     <!-- Logo -->
     <div class="p-5 border-b border-slate-800">
       <div class="flex items-center gap-0">
-        <!-- Pill ícone laranja -->
         <div class="flex items-center justify-center bg-orange-500 rounded-l-lg flex-shrink-0" style="width:40px;height:40px;">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M3 17 L8 11 L12 14 L17 5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="17" cy="5" r="2.5" fill="#fff"/>
           </svg>
         </div>
-        <!-- Pill texto slate -->
         <div class="flex flex-col justify-center rounded-r-lg px-3" style="background:#1e293b;height:40px;gap:2px;">
           <span class="font-bold text-white leading-none tracking-wide" style="font-size:15px;letter-spacing:0.3px;">EduStats</span>
           <span class="font-mono text-slate-500 leading-none uppercase tracking-widest" style="font-size:8px;letter-spacing:2px;">Brasil · 2025</span>
@@ -49,7 +47,7 @@
     </div>
 
     <!-- Nav -->
-    <nav class="p-4 flex-1">
+    <nav class="p-4 flex-1 overflow-y-auto">
       <p class="text-slate-600 text-xs uppercase font-bold tracking-widest mb-3 px-2">Menu</p>
       <a href="index.html" class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-semibold">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -76,13 +74,22 @@
       </div>
 
       <!-- Filtro Estado (IBGE) -->
-      <div class="px-2">
+      <div class="px-2 mb-3">
         <label class="text-slate-400 text-xs font-mono block mb-1">
           ESTADO
           <span id="ibge-badge" class="ml-1 text-slate-500 font-mono text-xs">carregando IBGE…</span>
         </label>
         <select id="filtroEstado" class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500">
           <option value="">Todos os estados</option>
+        </select>
+      </div>
+
+      <!-- Filtro Cidade (IBGE) -->
+      <div class="px-2">
+        <label class="text-slate-400 text-xs font-mono block mb-1">CIDADE</label>
+        <select id="filtroCidade" disabled
+          class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500 disabled:opacity-40 disabled:cursor-not-allowed">
+          <option value="">Selecione um estado</option>
         </select>
       </div>
     </nav>
@@ -143,15 +150,12 @@
 
       <!-- CHARTS ROW 1 -->
       <div class="grid grid-cols-3 gap-4 mb-4">
-
-        <!-- Bar chart estados — maior -->
         <div class="col-span-2 bg-slate-900 rounded-2xl border border-slate-800 p-6">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h2 class="font-bold text-white">Média por Estado</h2>
               <p class="text-slate-500 text-xs font-mono">ENEM 2025 · filtrado por região</p>
             </div>
-            <!-- Legenda de regiões -->
             <div class="flex gap-3 flex-wrap justify-end">
               <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-sky-400 inline-block"></span>Norte</span>
               <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-orange-400 inline-block"></span>Nordeste</span>
@@ -165,7 +169,6 @@
           </div>
         </div>
 
-        <!-- Doughnut regiões -->
         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
           <div class="mb-4">
             <h2 class="font-bold text-white">Inscrições por Região</h2>
@@ -179,8 +182,6 @@
 
       <!-- CHARTS ROW 2 -->
       <div class="grid grid-cols-2 gap-4">
-
-        <!-- Line chart histórico -->
         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
           <div class="mb-4">
             <h2 class="font-bold text-white">Evolução de Inscrições</h2>
@@ -191,7 +192,6 @@
           </div>
         </div>
 
-        <!-- Horizontal bar disciplinas -->
         <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
           <div class="mb-4">
             <h2 class="font-bold text-white">Ranking por Disciplina</h2>
@@ -203,8 +203,8 @@
         </div>
       </div>
 
-    </div><!-- /p-8 -->
-  </main><!-- /main -->
+    </div>
+  </main>
 
   <script type="module" src="js/main.js"></script>
 </body>
